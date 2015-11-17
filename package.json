@@ -1,0 +1,11 @@
+{
+  "name": "streamroot-test-recrutement",
+  "version": "0.0.1",
+  "description": "Streamroot's test for applicant developpers",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha"
+  },
+  "author": "StyMaar",
+  "license": "MIT"
+}
