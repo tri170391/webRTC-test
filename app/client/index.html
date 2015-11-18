@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+
+<meta charset="utf-8" />
+
+<title>WebSocket Test</title>
+
+<script src="TrackerManager.js">
+
+</script>
+<script language="javascript" type="text/javascript">
+
+  var wsUri = "ws://localhost:8090/";
+  var trackerManager = new TrackerManager();
+  function init(){
+      trackerManager.connectToTracker(wsUri);
+  }
+  window.addEventListener("load", init, false);
+
+</script>
+
+<h2>WebSocket Test</h2>

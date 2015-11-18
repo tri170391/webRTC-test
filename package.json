@@ -7,5 +7,8 @@
     "test": "mocha"
   },
   "author": "StyMaar",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "ws": "^0.8.0"
+  }
 }
