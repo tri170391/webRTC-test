@@ -1,7 +1,7 @@
 function TrackerManager(){
 
     var _ws;
-    
+
     function connectToTracker(url){
         _ws = new WebSocket(wsUri);
         _ws.onopen = _onConnectionEstablished;
@@ -9,7 +9,7 @@ function TrackerManager(){
         _ws.onmessage = _onMessage;
         _ws.onerror = _onError;
     }
-    
+
     function _onConnectionEstablished(){
         _sendMessage('init');
     }

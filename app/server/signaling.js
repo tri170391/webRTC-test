@@ -6,10 +6,10 @@ var wss = new WebSocketServer({ port: PORT_NUMBER });
 var connectedPeers = {};
 
 wss.on('connection', function connection(ws) {
-  console.log('connection from a client');
-  ws.on('message', function incoming(message) {
-    onMessage(ws, message);
-  });
+    console.log('connection from a client');
+    ws.on('message', function incoming(message) {
+        onMessage(ws, message);
+    });
 });
 
 console.log("started signaling server on port" + PORT_NUMBER);
