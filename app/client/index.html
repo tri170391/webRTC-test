@@ -4,15 +4,15 @@
 
 <title>WebSocket Test</title>
 
-<script src="TrackerManager.js">
+<script src="signalingChannelFactory.js">
 
 </script>
 <script language="javascript" type="text/javascript">
 
   var wsUri = "ws://localhost:8090/";
-  var trackerManager = new TrackerManager();
+  var signalingChannel;
   function init(){
-      trackerManager.connectToTracker(wsUri);
+      signalingChannel = createSignalingChannel(wsUri);
   }
   window.addEventListener("load", init, false);
 
