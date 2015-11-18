@@ -3,7 +3,7 @@ function TrackerManager(){
     var _ws;
 
     function connectToTracker(url){
-        _ws = new WebSocket(wsUri);
+        _ws = new WebSocket(url);
         _ws.onopen = _onConnectionEstablished;
         _ws.onclose = _onClose;
         _ws.onmessage = _onMessage;
@@ -78,3 +78,5 @@ function TrackerManager(){
     this.sendOffer = sendOffer;
     this.sendAnswer = sendAnswer;
 }
+
+window.TrackerManager = TrackerManager;
