@@ -4,11 +4,16 @@
   "description": "Streamroot's test for applicant developpers",
   "main": "index.js",
   "scripts": {
-    "test": "mocha"
+    "test": "mocha",
+    "styleCheck": "./node_modules/jshint/bin/jshint app/ && ./node_modules/echint/bin/echint -v && echo 'Style check OK' "
   },
   "author": "StyMaar",
   "license": "MIT",
   "dependencies": {
     "ws": "^0.8.0"
+  },
+  "devDependencies": {
+    "echint": "^1.5.0",
+    "jshint": "^2.8.0"
   }
 }
