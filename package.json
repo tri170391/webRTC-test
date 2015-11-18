@@ -6,7 +6,7 @@
   "scripts": {
     "test": "mocha",
     "styleCheck": "./node_modules/jshint/bin/jshint app/ && ./node_modules/echint/bin/echint -v && echo 'Style check OK'",
-    "start":"(node app/server/signaling.js &) && ./node_modules/http-server/bin/http-server -p 8089"
+    "start":"(node app/server/signalingServer.js &) && ./node_modules/http-server/bin/http-server -p 8089"
   },
   "author": "StyMaar",
   "license": "MIT",
