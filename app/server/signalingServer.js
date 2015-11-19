@@ -2,6 +2,7 @@ var WebSocketServer = require('ws').Server;
 var PORT_NUMBER = 8090; 
 var wss = new WebSocketServer({ port: PORT_NUMBER });
 
+var id = 0;
 
 var connectedPeers = {};
 
@@ -36,7 +37,8 @@ function onMessage(ws, message){
 }
 
 function onInit(ws){
-    var id = 1;//Math.random().toString().substr(2);
+    //var id = 1;//Math.random().toString().substr(2);
+    id++;
     console.log("init from peer:", id);
     ws.id = id;
     connectedPeers[id] = ws;
