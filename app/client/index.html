@@ -33,50 +33,45 @@ function init(){
                 signalingChannel.sendICECandidate(evt.candidate, peerId);
             }
         };
-        
-        sendChannel = pc.createDataChannel("sendDataChannel", {reliable: true});
-        
-        pc.ondatachannel = function(event) {
-          receiveChannel = event.channel;
-          console.log("channel received")
-          receiveChannel.onmessage = function(event){
-            console.log("data",event.data);
-          };
-        };
-        
-        pc.ondatachannel = function(){
-            console.log("on dataChannel trigered");
-        };
-        
-        var _commChannel = pc.createDataChannel('communication', {
-            reliable: false
-        });
-        
-        //_commChannel.binaryType = "arraybuffer";
-        
-        _commChannel.onclose = function(evt) {
-            console.log("dataChannel closed");
-        }
-        _commChannel.onerror = function(evt) {
-            console.error("dataChannel error");
-        }
-        console.log(_commChannel.label);
-        
-        console.log(_commChannel.readyState);
-        
-        _commChannel.onopen = function(){
-            console.log("dataChannel opened")
-        };
-        
-        window.channel = _commChannel;
-        //_commChannel.send('canche');
-        
+
         if (isCaller){
+            var _commChannel = pc.createDataChannel('communication', {
+                reliable: false
+            });
+            
+            //_commChannel.binaryType = "arraybuffer";
+            
+            _commChannel.onclose = function(evt) {
+                console.log("dataChannel closed");
+            }
+            _commChannel.onerror = function(evt) {
+                console.error("dataChannel error");
+            }
+            
+            _commChannel.onopen = function(){
+                console.log("dataChannel opened")
+            };
+            
+            window.channel = _commChannel;
+            
             pc.createOffer(function(offer){
                 pc.setLocalDescription(offer);
                 console.log('send offer');
                 signalingChannel.sendOffer(offer, peerId);
             });
+            
+            _commChannel.onmessage = function(message){
+                console.log(message)
+            };
+        }else{
+            pc.ondatachannel = function(event) {
+              receiveChannel = event.channel;
+              console.log("channel received");
+              window.channel = receiveChannel;
+              receiveChannel.onmessage = function(event){
+                console.log("data",event.data);
+              };
+            };
         }
     }
         
