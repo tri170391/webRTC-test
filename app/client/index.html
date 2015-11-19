@@ -9,12 +9,62 @@
 </script>
 <script language="javascript" type="text/javascript">
 
-  var wsUri = "ws://localhost:8090/";
-  var signalingChannel;
-  function init(){
-      signalingChannel = createSignalingChannel(wsUri);
-  }
-  window.addEventListener("load", init, false);
+var wsUri = "ws://localhost:8090/";
+var signalingChannel;
+function init(){
+    RTCSessionDescription = window.RTCSessionDescription || window.mozRTCSessionDescription;
+    RTCPeerConnection = window.RTCPeerConnection || window.webkitRTCPeerConnection || window.mozRTCPeerConnection;
+    signalingChannel = createSignalingChannel(wsUri);
+    var pc;
+    var servers = {
+    iceServers: [{url: "stun:stun.1.google.com:19302"}]   
+    };
+    
+    // run start(true, <id of the peer you want to communicate with>) to initiate a call
+    function start(isCaller, peerId) {
+        pc = new RTCPeerConnection(servers, {
+            optional: [{
+                DtlsSrtpKeyAgreement: true
+            }]
+        });
+            
+        pc.onicecandidate = function (evt) {
+            if(evt.candidate){ // empty candidate (wirth evt.candidate === null) are often generated
+                signalingChannel.sendICECandidate(evt.candidate, peerId);
+            }
+        };
+        
+        sendChannel = pc.createDataChannel("sendDataChannel", {reliable: true});
+        
+        if (isCaller){
+            pc.createOffer(function(offer){
+                pc.setLocalDescription(offer);
+                signalingChannel.sendOffer(offer, peerId);
+            });
+        }
+    }
+        
+    signalingChannel.onOffer = function (offer, source) {
+        start(false, source);
+        pc.setRemoteDescription(new RTCSessionDescription(offer));
+        pc.createAnswer(function(answer){
+            pc.setLocalDescription(answer);
+            signalingChannel.sendAnswer(answer, source);
+        });
+    };
+    
+    signalingChannel.onAnswer = function (answer, source) {
+        pc.setRemoteDescription(new RTCSessionDescription(answer));
+    };
+    
+    signalingChannel.onICECandidate = function (ICECandidate, source) {
+        pc.addIceCandidate(new RTCIceCandidate(ICECandidate));
+    };
+    
+    window.start = start;
+    
+}
+window.addEventListener("load", init, false);
 
 </script>
 

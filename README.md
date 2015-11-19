@@ -2,6 +2,9 @@
 
 ## Introduction:
 
+The goal of this test is to create a peer to peer application the send binary data from on browser tab to another, using the RTCDataChannel of the WebRTC HTML5 API.
+Web RTC is an API this allows direct client-to-client communication. It's widely used for video chats in the browser, but it can be used for many things, including peer-to-peer video delivery like we do at Streamroot. 
+
 ## Questions:
 
 ## How to use this repository:

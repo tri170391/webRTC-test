@@ -1,68 +1,87 @@
 # WebRTC
 
-Note: This article is widely inspired of the [amazing HTML5Rocks article about WebRTC](http://www.html5rocks.com/en/tutorials/webrtc/basics/#toc-signaling). 
+Note: This article is widely inspired of the [amazing HTML5Rocks article about WebRTC](http://www.html5rocks.com/en/tutorials/webrtc/basics/#toc-signaling). Only the RTCDataChannel (which is the core of this test) will be discussed in the following.
 
-Signaling: session control, network and media information
 
-WebRTC uses RTCPeerConnection to communicate streaming data between browsers (aka peers), but also needs a mechanism to coordinate communication and to send control messages, a process known as signaling. Signaling methods and protocols are not specified by WebRTC: signaling is not part of the RTCPeerConnection API.
+## RTCDataChannel
 
-Instead, WebRTC app developers can choose whatever messaging protocol they prefer, such as SIP or XMPP, and any appropriate duplex (two-way) communication channel. The apprtc.appspot.com example uses XHR and the Channel API as the signaling mechanism. The codelab we built uses Socket.io running on a Node server.
+WebRTC supports real-time communication for any types of data.
+
+The RTCDataChannel API enables peer-to-peer exchange of arbitrary data, with low latency and high throughput. There's a simple 'single page' demo at http://webrtc.github.io/samples/src/content/datachannel/datatransfer.
+The syntax is deliberately similar to WebSocket, with a send() method and a message event:
+
+```JavaScript
+var pc = new RTCPeerConnection(servers,
+  {optional: [{RtpDataChannels: true}]});
+
+pc.ondatachannel = function(event) {
+  receiveChannel = event.channel;
+  receiveChannel.onmessage = function(event){
+    document.querySelector("div#receive").innerHTML = event.data;
+  };
+};
+
+sendChannel = pc.createDataChannel("sendDataChannel", {reliable: false});
+
+document.querySelector("button#send").onclick = function (){
+  var data = document.querySelector("textarea#send").value;
+  sendChannel.send(data);
+};
+```
+
+## Signaling: session control, network and media information
+
+WebRTC uses RTCPeerConnection to communicate streaming data between browsers (aka peers), but also needs a mechanism to coordinate communication and to send control messages, a process known as signaling. Signaling methods and protocols are not specified by WebRTC: signaling is not part of the RTCPeerConnection API. In this test, a template of signaling system has been provided, using web sockets for client-server communication.
 
 Signaling is used to exchange three types of information:
 
 - Session control messages: to initialize or close communication and report errors
 - Network configuration: to the outside world, what's my computer's IP address and port
-- Media capabilities: what codecs and resolutions can be handled by my browser and the browser it wants to communicate with?
 
 The exchange of information via signaling must have completed successfully before peer-to-peer streaming can begin.
 
 For example, imagine Alice wants to communicate with Bob. Here's a code sample from the WebRTC W3C Working Draft, which shows the signaling process in action. The code assumes the existence of some signaling mechanism, created in the createSignalingChannel() method. Also note that on Chrome and Opera, RTCPeerConnection is currently prefixed.
 
 ```JavaScript
-var signalingChannel = createSignalingChannel();
+var url = ...;
+var signalingChannel = createSignalingChannel(url);
 var pc;
-var configuration = ...;
 
-// run start(true) to initiate a call
-function start(isCaller) {
-    pc = new RTCPeerConnection(configuration);
+// run start(true, <id of the peer you want to communicate with>) to initiate a call
+function start(isCaller, peerId) {
+    pc = new RTCPeerConnection(servers,
+      {optional: [{RtpDataChannels: true}]});
 
     // send any ice candidates to the other peer
     pc.onicecandidate = function (evt) {
-        signalingChannel.send(JSON.stringify({ "candidate": evt.candidate }));
+        signalingChannel.sendICECandidate(evt.candidate, peerId);
     };
 
-    // once remote stream arrives, show it in the remote video element
-    pc.onaddstream = function (evt) {
-        remoteView.src = URL.createObjectURL(evt.stream);
-    };
+    sendChannel = pc.createDataChannel("sendDataChannel", {reliable: true});
 
-    // get the local stream, show it in the local video element and send it
-    navigator.getUserMedia({ "audio": true, "video": true }, function (stream) {
-        selfView.src = URL.createObjectURL(stream);
-        pc.addStream(stream);
-
-        if (isCaller)
-            pc.createOffer(gotDescription);
-        else
-            pc.createAnswer(pc.remoteDescription, gotDescription);
-
-        function gotDescription(desc) {
-            pc.setLocalDescription(desc);
-            signalingChannel.send(JSON.stringify({ "sdp": desc }));
-        }
-    });
+    if (isCaller){
+        pc.createOffer(function(offer){
+            pc.setLocalDescription(offer);
+            signalingChannel.sendOffer(offer, peerId);
+        });
+    }
 }
 
-signalingChannel.onmessage = function (evt) {
-    if (!pc)
-        start(false);
+signalingChannel.onOffer = function (offer, source) {
+    start(false, source);
+    pc.setRemoteDescription(new RTCSessionDescription(offer));
+    pc.createAnswer(pc.remoteDescription, function(answer){
+        pc.setLocalDescription(answer);
+        signalingChannel.sendAnswer(answer, peerId);
+    });
+};
 
-    var signal = JSON.parse(evt.data);
-    if (signal.sdp)
-        pc.setRemoteDescription(new RTCSessionDescription(signal.sdp));
-    else
-        pc.addIceCandidate(new RTCIceCandidate(signal.candidate));
+signalingChannel.onAnswer = function (answer, source) {
+    pc.setRemoteDescription(new RTCSessionDescription(answer));
+};
+
+signalingChannel.onICECandidate = function (ICECandidate, source) {
+    pc.addIceCandidate(new RTCIceCandidate(ICECandidate));
 };
 ```
 
@@ -70,10 +89,10 @@ First up, Alice and Bob exchange network information. (The expression 'finding c
 
 - Alice creates an RTCPeerConnection object with an onicecandidate handler
 - The handler is run when network candidates become available
-- Alice sends serialized candidate data to Bob, via whatever signaling channel they are using: WebSocket or some other mechanism
+- Alice sends candidate data to Bob, via whatever signaling channel they are using: WebSocket or some other mechanism
 - When Bob gets a candidate message from Alice, he calls addIceCandidate, to add the candidate to the remote peer description.
 
-WebRTC clients (known as peers, aka Alice and Bob) also need to ascertain and exchange local and remote audio and video media information, such as resolution and codec capabilities. Signaling to exchange media configuration information proceeds by exchanging an offer and an answer using the Session Description Protocol (SDP):
+For video chats, WebRTC clients (known as peers, aka Alice and Bob) also need to ascertain and exchange local and remote audio and video media information, such as resolution and codec capabilities. Signaling to exchange media configuration information proceeds by exchanging an offer and an answer using the Session Description Protocol (SDP):
 
 - Alice runs the RTCPeerConnection createOffer() method. The callback argument of this is passed an RTCSessionDescription: Alice's local session description
 - In the callback, Alice sets the local description using setLocalDescription() and then sends this session description to Bob via their signaling channel. Note that RTCPeerConnection won't start gathering candidates until setLocalDescription() is called: this is codified in JSEP IETF draft
@@ -193,49 +212,3 @@ ICE is a framework for connecting peers, such as two video chat clients. Initial
 If UDP fails, ICE tries TCP: first HTTP, then HTTPS. If direct connection fails—in particular, because of enterprise NAT traversal and firewalls—ICE uses an intermediary (relay) TURN server. In other words, ICE will first use STUN with UDP to directly connect peers and, if that fails, will fall back to a TURN relay server. The expression 'finding candidates' refers to the process of finding network interfaces and ports.
 
 ![WebRTC data pathways](webRTC-images/dataPathways.png)
-
-## RTCDataChannel
-
-As well as audio and video, WebRTC supports real-time communication for other types of data.
-
-The RTCDataChannel API enables peer-to-peer exchange of arbitrary data, with low latency and high throughput. There's a simple 'single page' demo at http://webrtc.github.io/samples/src/content/datachannel/datatransfer.
-
-There are many potential use cases for the API, including:
-
-    Gaming
-    Remote desktop applications
-    Real-time text chat
-    File transfer
-    Decentralized networks
-
-The API has several features to make the most of RTCPeerConnection and enable powerful and flexible peer-to-peer communication:
-
-- Leveraging of RTCPeerConnection session setup.
-- Multiple simultaneous channels, with prioritization.
-- Reliable and unreliable delivery semantics.
-- Built-in security (DTLS) and congestion control.
-- Ability to use with or without audio or video.
-
-The syntax is deliberately similar to WebSocket, with a send() method and a message event:
-
-
-```JavaScript
-var pc = new webkitRTCPeerConnection(servers,
-  {optional: [{RtpDataChannels: true}]});
-
-pc.ondatachannel = function(event) {
-  receiveChannel = event.channel;
-  receiveChannel.onmessage = function(event){
-    document.querySelector("div#receive").innerHTML = event.data;
-  };
-};
-
-sendChannel = pc.createDataChannel("sendDataChannel", {reliable: false});
-
-document.querySelector("button#send").onclick = function (){
-  var data = document.querySelector("textarea#send").value;
-  sendChannel.send(data);
-};
-```
-
-Communication occurs directly between browsers, so RTCDataChannel can be much faster than WebSocket

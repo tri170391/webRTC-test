@@ -36,7 +36,7 @@ function onMessage(ws, message){
 }
 
 function onInit(ws){
-    var id = Math.random().toString().substr(2);
+    var id = 1;//Math.random().toString().substr(2);
     console.log("init from peer:", id);
     ws.id = id;
     connectedPeers[id] = ws;
