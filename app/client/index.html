@@ -20,9 +20,52 @@ function init(){
     iceServers: [{url: "stun:stun.1.google.com:19302"}]   
     };
     
-    // run start(true, <id of the peer you want to communicate with>) to initiate a call
-    function start(isCaller, peerId) {
-        pc = new RTCPeerConnection(servers, {
+    function startCommunication(peerId) {
+        pc = createPeerConnexion(peerId);
+        
+        var _commChannel = pc.createDataChannel('communication', {
+            reliable: false
+        });
+        
+        _commChannel.onclose = function(evt) {
+            console.log("dataChannel closed");
+        }
+        _commChannel.onerror = function(evt) {
+            console.error("dataChannel error");
+        }
+        
+        _commChannel.onopen = function(){
+            console.log("dataChannel opened")
+        };
+        
+        window.channel = _commChannel;
+        
+        pc.createOffer(function(offer){
+            pc.setLocalDescription(offer);
+            console.log('send offer');
+            signalingChannel.sendOffer(offer, peerId);
+        });
+        
+        _commChannel.onmessage = function(message){
+            console.log(message)
+        };
+    }
+    
+    function followCommunication(){
+        pc = createPeerConnexion(peerId);
+
+        pc.ondatachannel = function(event) {
+          receiveChannel = event.channel;
+          console.log("channel received");
+          window.channel = receiveChannel;
+          receiveChannel.onmessage = function(event){
+            console.log("data",event.data);
+          };
+        };
+    }
+    
+    function createPeerConnexion(peerId){
+        var pc = new RTCPeerConnection(servers, {
             optional: [{
                 DtlsSrtpKeyAgreement: true
             }]
@@ -33,48 +76,10 @@ function init(){
                 signalingChannel.sendICECandidate(evt.candidate, peerId);
             }
         };
-
-        if (isCaller){
-            var _commChannel = pc.createDataChannel('communication', {
-                reliable: false
-            });
-            
-            //_commChannel.binaryType = "arraybuffer";
-            
-            _commChannel.onclose = function(evt) {
-                console.log("dataChannel closed");
-            }
-            _commChannel.onerror = function(evt) {
-                console.error("dataChannel error");
-            }
-            
-            _commChannel.onopen = function(){
-                console.log("dataChannel opened")
-            };
-            
-            window.channel = _commChannel;
-            
-            pc.createOffer(function(offer){
-                pc.setLocalDescription(offer);
-                console.log('send offer');
-                signalingChannel.sendOffer(offer, peerId);
-            });
-            
-            _commChannel.onmessage = function(message){
-                console.log(message)
-            };
-        }else{
-            pc.ondatachannel = function(event) {
-              receiveChannel = event.channel;
-              console.log("channel received");
-              window.channel = receiveChannel;
-              receiveChannel.onmessage = function(event){
-                console.log("data",event.data);
-              };
-            };
-        }
-    }
         
+        return pc;
+    }
+    
     signalingChannel.onOffer = function (offer, source) {
         start(false, source);
         pc.setRemoteDescription(new RTCSessionDescription(offer));
