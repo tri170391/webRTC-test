@@ -30,16 +30,17 @@ function initCaller(){
             }
         };
 
+        //:warning the dataChannel must be opened BEFORE creating the offer.
+        var _commChannel = pc.createDataChannel('communication', {
+            reliable: false
+        });
+
         pc.createOffer(function(offer){
             pc.setLocalDescription(offer);
             console.log('send offer');
             signalingChannel.sendOffer(offer, peerId);
         });
 
-        var _commChannel = pc.createDataChannel('communication', {
-            reliable: false
-        });
-        
         window.channel = _commChannel;
         
         _commChannel.onclose = function(evt) {
