@@ -1,4 +1,4 @@
-function SignalingChannel(){
+function SignalingChannel(id){
 
     var _ws;
     var self = this;
@@ -12,7 +12,7 @@ function SignalingChannel(){
     }
 
     function _onConnectionEstablished(){
-        _sendMessage('init');
+        _sendMessage('init', id);
     }
 
     function _onClose(){
@@ -83,8 +83,8 @@ function SignalingChannel(){
     };
 }
 
-window.createSignalingChannel = function(url){
-    var signalingChannel = new SignalingChannel();
+window.createSignalingChannel = function(url, id){
+    var signalingChannel = new SignalingChannel(id);
     signalingChannel.connectToTracker(url);
     return signalingChannel;
 };

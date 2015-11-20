@@ -1,10 +1,10 @@
-function initCallee(){
+function initCallee(messageCallback){
     var RTCSessionDescription = window.RTCSessionDescription || window.mozRTCSessionDescription;
     var RTCPeerConnection = window.RTCPeerConnection || window.webkitRTCPeerConnection || window.mozRTCPeerConnection;
     var RTCIceCandidate = window.RTCIceCandidate || window.mozRTCIceCandidate;
     
     var wsUri = "ws://localhost:8090/";
-    var signalingChannel = createSignalingChannel(wsUri);
+    var signalingChannel = createSignalingChannel(wsUri, CALLEE_ID);
     var servers = { iceServers: [{url: "stun:stun.1.google.com:19302"}] };
 
     function createPeerConnection(peerId){
@@ -30,7 +30,7 @@ function initCallee(){
           console.log("channel received");
           window.channel = receiveChannel;
           receiveChannel.onmessage = function(event){
-            console.log("data",event.data);
+            messageCallback(event.data);
           };
         };
 

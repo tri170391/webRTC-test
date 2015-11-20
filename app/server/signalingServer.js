@@ -29,16 +29,14 @@ function onMessage(ws, message){
             onAnswer(objMessage.answer, objMessage.destination, ws.id);
             break;
         case "init":
-            onInit(ws);
+            onInit(ws, objMessage.init);
             break;
         default:
             throw new Error("invalid message type");
     }
 }
 
-function onInit(ws){
-    //var id = 1;//Math.random().toString().substr(2);
-    id++;
+function onInit(ws, id){
     console.log("init from peer:", id);
     ws.id = id;
     connectedPeers[id] = ws;
