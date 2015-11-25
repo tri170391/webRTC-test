@@ -2,8 +2,6 @@ var WebSocketServer = require('ws').Server;
 var PORT_NUMBER = 8090; 
 var wss = new WebSocketServer({ port: PORT_NUMBER });
 
-var id = 0;
-
 var connectedPeers = {};
 
 wss.on('connection', function connection(ws) {
