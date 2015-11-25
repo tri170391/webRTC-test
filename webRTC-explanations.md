@@ -3,32 +3,6 @@
 Note: This article is widely inspired of the [amazing HTML5Rocks article about WebRTC](http://www.html5rocks.com/en/tutorials/webrtc/basics/#toc-signaling). Only the RTCDataChannel (which is the core of this test) will be discussed in the following.
 
 
-## RTCDataChannel
-
-WebRTC supports real-time communication for any types of data.
-
-The RTCDataChannel API enables peer-to-peer exchange of arbitrary data, with low latency and high throughput. There's a simple 'single page' demo at http://webrtc.github.io/samples/src/content/datachannel/datatransfer.
-The syntax is deliberately similar to WebSocket, with a send() method and a message event:
-
-```JavaScript
-var pc = new RTCPeerConnection(servers,
-  {optional: [{RtpDataChannels: true}]});
-
-pc.ondatachannel = function(event) {
-  receiveChannel = event.channel;
-  receiveChannel.onmessage = function(event){
-    document.querySelector("div#receive").innerHTML = event.data;
-  };
-};
-
-sendChannel = pc.createDataChannel("sendDataChannel", {reliable: false});
-
-document.querySelector("button#send").onclick = function (){
-  var data = document.querySelector("textarea#send").value;
-  sendChannel.send(data);
-};
-```
-
 ## Signaling: session control, network and media information
 
 WebRTC uses RTCPeerConnection to communicate streaming data between browsers (aka peers), but also needs a mechanism to coordinate communication and to send control messages, a process known as signaling. Signaling methods and protocols are not specified by WebRTC: signaling is not part of the RTCPeerConnection API. In this test, a template of signaling system has been provided, using web sockets for client-server communication.
@@ -40,50 +14,8 @@ Signaling is used to exchange three types of information:
 
 The exchange of information via signaling must have completed successfully before peer-to-peer streaming can begin.
 
-For example, imagine Alice wants to communicate with Bob. Here's a code sample from the WebRTC W3C Working Draft, which shows the signaling process in action. The code assumes the existence of some signaling mechanism, created in the createSignalingChannel() method. Also note that on Chrome and Opera, RTCPeerConnection is currently prefixed.
+TODO
 
-```JavaScript
-var url = ...;
-var signalingChannel = createSignalingChannel(url);
-var pc;
-
-// run start(true, <id of the peer you want to communicate with>) to initiate a call
-function start(isCaller, peerId) {
-    pc = new RTCPeerConnection(servers,
-      {optional: [{RtpDataChannels: true}]});
-
-    // send any ice candidates to the other peer
-    pc.onicecandidate = function (evt) {
-        signalingChannel.sendICECandidate(evt.candidate, peerId);
-    };
-
-    sendChannel = pc.createDataChannel("sendDataChannel", {reliable: true});
-
-    if (isCaller){
-        pc.createOffer(function(offer){
-            pc.setLocalDescription(offer);
-            signalingChannel.sendOffer(offer, peerId);
-        });
-    }
-}
-
-signalingChannel.onOffer = function (offer, source) {
-    start(false, source);
-    pc.setRemoteDescription(new RTCSessionDescription(offer));
-    pc.createAnswer(pc.remoteDescription, function(answer){
-        pc.setLocalDescription(answer);
-        signalingChannel.sendAnswer(answer, peerId);
-    });
-};
-
-signalingChannel.onAnswer = function (answer, source) {
-    pc.setRemoteDescription(new RTCSessionDescription(answer));
-};
-
-signalingChannel.onICECandidate = function (ICECandidate, source) {
-    pc.addIceCandidate(new RTCIceCandidate(ICECandidate));
-};
-```
 
 First up, Alice and Bob exchange network information. (The expression 'finding candidates' refers to the process of finding network interfaces and ports using the ICE framework.)
 
@@ -212,3 +144,31 @@ ICE is a framework for connecting peers, such as two video chat clients. Initial
 If UDP fails, ICE tries TCP: first HTTP, then HTTPS. If direct connection fails—in particular, because of enterprise NAT traversal and firewalls—ICE uses an intermediary (relay) TURN server. In other words, ICE will first use STUN with UDP to directly connect peers and, if that fails, will fall back to a TURN relay server. The expression 'finding candidates' refers to the process of finding network interfaces and ports.
 
 ![WebRTC data pathways](webRTC-images/dataPathways.png)
+
+
+
+## RTCDataChannel
+
+WebRTC supports real-time communication for any types of data.
+
+The RTCDataChannel API enables peer-to-peer exchange of arbitrary data, with low latency and high throughput. There's a simple 'single page' demo at http://webrtc.github.io/samples/src/content/datachannel/datatransfer.
+The syntax is deliberately similar to WebSocket, with a send() method and a message event:
+
+```JavaScript
+var pc = new RTCPeerConnection(servers,
+  {optional: [{RtpDataChannels: true}]});
+
+pc.ondatachannel = function(event) {
+  receiveChannel = event.channel;
+  receiveChannel.onmessage = function(event){
+    document.querySelector("div#receive").innerHTML = event.data;
+  };
+};
+
+sendChannel = pc.createDataChannel("sendDataChannel", {reliable: false});
+
+document.querySelector("button#send").onclick = function (){
+  var data = document.querySelector("textarea#send").value;
+  sendChannel.send(data);
+};
+```
