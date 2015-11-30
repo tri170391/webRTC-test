@@ -47,4 +47,5 @@ The unit tests can be found in the `test/` directory.
 - shouldjs
 
 ### Launching the app:
-Run `npm start` (it starts the signaling server on port 8090 and start a web server on the root of this repository on port 8089) then go to [http://localhost:8089/app/client](http://localhost:8089/app/client)".
+First run `npm install` to install dependencies.
+Then run `npm start` (it starts the signaling server on port 8090 and start a web server on the root of this repository on port 8089) then go to [http://localhost:8089/app/client](http://localhost:8089/app/client)".
