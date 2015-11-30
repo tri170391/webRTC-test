@@ -39,6 +39,8 @@ function initCaller(messageCallback){
             pc.setLocalDescription(offer);
             console.log('send offer');
             signalingChannel.sendOffer(offer, peerId);
+        }, function (e){
+            console.error(e);
         });
 
         window.channel = _commChannel;

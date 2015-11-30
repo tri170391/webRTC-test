@@ -45,6 +45,8 @@ function initCallee(messageCallback){
             peerConnection.setLocalDescription(answer);
             console.log('send answer');
             signalingChannel.sendAnswer(answer, source);
+        }, function (e){
+            console.error(e);
         });
     };
 }
