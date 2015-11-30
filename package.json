@@ -15,6 +15,7 @@
   },
   "devDependencies": {
     "echint": "^1.5.0",
+    "http-server": "^0.8.5",
     "jshint": "^2.8.0",
     "mocha": "*"
   }
