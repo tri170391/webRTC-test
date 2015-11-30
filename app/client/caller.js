@@ -5,7 +5,7 @@ function initCaller(messageCallback){
 
     var wsUri = "ws://localhost:8090/";
     var signalingChannel = createSignalingChannel(wsUri, CALLER_ID);
-    var servers = {iceServers: [{url: "stun:stun.1.google.com:19302"}]};
+    var servers = {iceServers: [{urls: "stun:stun.1.google.com:19302"}]};
     
     function startCommunication(peerId) {
         var pc = new RTCPeerConnection(servers, {
