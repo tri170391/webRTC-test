@@ -23,6 +23,6 @@ The unit tests can be found in the `test/` directory.
 `npm test`
 
 #### tools:
-- mocha
-- sinonjs
-- shouldjs
+- [mocha](http://mochajs.org/)
+- [sinonjs](http://sinonjs.org/docs/)
+- [shouldjs](shouldjs.github.io)
