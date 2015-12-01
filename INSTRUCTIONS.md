@@ -7,7 +7,7 @@ The quality must be your main concern when answering this test : the code **must
 ## Questions:
 
 ### 1. Create a peer to peer application that allows several peers to send message to each other: 
-- all the peers must be connected on the same web page
+- There should be a single page (no separation between caller & callee)
 - once on the page, they must see the list of all other peers connected
 - a peer connection must be established with every other peers immediately after the connection to the page. 
 - they must be able to send message to any other connected peers directly. (unicast message, broadcast not needed)
