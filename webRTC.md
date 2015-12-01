@@ -75,6 +75,4 @@ When the ICEcandidate and the session descriptions has been received by both pee
 
 ## Example
 
-An example of working webRTC application is available in /app/client of the project.
-The `caller.html` page will connect to the `callee.html` page using WebRTC.
-Notice that once the connection is running, both peer can send a message to each-other.
+An example of working webRTC application is available in this repository. See [EXAMPLE.md](EXAMPLE.md) for more details.
