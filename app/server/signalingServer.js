@@ -1,5 +1,5 @@
 var WebSocketServer = require('ws').Server;
-var signalingMessage = require('signalingMessage');
+var signalingMessage = require('./signalingMessage');
 var PORT_NUMBER = 8090; 
 var wss = new WebSocketServer({ port: PORT_NUMBER });
 
