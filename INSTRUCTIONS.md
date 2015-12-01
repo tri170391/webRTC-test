@@ -1,5 +1,9 @@
 #Instructions
 
+## Requirements:
+The amount of lines of code required by this test is small, although there might be interesting edge-cases to deal with.
+the quality must be your main concern when answering this test : the code **must** be **production-ready**.
+
 ## Questions:
 
 ### 1. Create a peer to peer application that allows several peers to send message to each other: 
@@ -16,7 +20,3 @@ What are the problem of this architecture ?
 - then he connects to every peers using the first peer as a signaling channel.
 
 How many peer connection can be opened on a single computer ?
-
-## Notes:
-The amount of lines of code required by this test is small, although there might be interesting edge-cases to deal with.
-the quality must be your main concern when answering this test : the code must be production-ready.
