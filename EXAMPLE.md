@@ -1,8 +1,20 @@
-#Simple WebRTC example:
+# Simple WebRTC example:
+
+A very simple webRTC application can be found in the `/app` directory. It's composed of 3 different parts :
+- a signaling server (`/app/server/SignalingServer.js`) which is a websocket server written in node.js and used as a signaling mechanism for webRTC. 
+- a **caller** webpage (`app/client/caller.html`), which is able to establish a communication with the **callee**.
+- a **callee** webpage (`app/client/callee.html`), which can be contacted by the **caller** and communicate with it.
 
 ## Prerequisites:
 - nodejs v4.2+
-- modern browser : Mozilla Firefox 44+ (Developer Edition or Nightly), or Google Chrome. You can use an older version of Firefox but in this case notice that WebRTC API will be prefixed (mozRTCPeerConnection, mozRTCSessionDescription and mozRTCIceCandidate).
+- modern browser : Mozilla Firefox 42+ or Google Chrome 46+.
+
+## Launching the app:
+First run `npm install` to install dependencies.
+Then run `npm start` (it starts the signaling server on port 8090 and start a web server on the root of this repository on port 8089).
+In two different tabs, open [the caller page](http://localhost:8089/app/client/caller.html) and [the callee one](http://localhost:8089/app/client/callee.html).
+In the **caller** page, press the `Start` button.
+Send message for one page to another, writing text in the text box, and sending it with the `Send message` button.
 
 ## Unit tests:
 The unit tests can be found in the `test/` directory.
@@ -13,7 +25,3 @@ The unit tests can be found in the `test/` directory.
 - mocha
 - sinonjs
 - shouldjs
-
-## Launching the app:
-First run `npm install` to install dependencies.
-Then run `npm start` (it starts the signaling server on port 8090 and start a web server on the root of this repository on port 8089) then go to [http://localhost:8089/app/client](http://localhost:8089/app/client)".
