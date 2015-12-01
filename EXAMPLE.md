@@ -1,6 +1,7 @@
 # Simple WebRTC example:
 
 A very simple webRTC application can be found in the `/app` directory. It's composed of 3 different parts :
+
 - a signaling server (`/app/server/SignalingServer.js`) which is a websocket server written in node.js and used as a signaling mechanism for webRTC. 
 - a **caller** webpage (`app/client/caller.html`), which is able to establish a communication with the **callee**.
 - a **callee** webpage (`app/client/callee.html`), which can be contacted by the **caller** and communicate with it.
