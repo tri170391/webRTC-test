@@ -2,7 +2,7 @@
 
 ## Requirements:
 The amount of lines of code required by this test is small, although there might be interesting edge-cases to deal with.
-the quality must be your main concern when answering this test : the code **must** be **production-ready**.
+The quality must be your main concern when answering this test : the code **must** be **production-ready**.
 
 ## Questions:
 
