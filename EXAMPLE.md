@@ -8,7 +8,7 @@ A very simple webRTC application can be found in the `/app` directory. It's comp
 
 ## Launching the app
 
-First run `npm install` to install dependencies. Then run `npm start` (it starts the signaling server on port 8090 and start a web server on the root of this repository on port 8089).
+First run `npm install` to install dependencies. Then run `npm start` (it starts the signaling server on port 8090 and starts a web server on the root of this repository on port 8089).
 
 In two different tabs, open [the caller page](http://localhost:8089/app/client/caller.html) and [the callee one](http://localhost:8089/app/client/callee.html).
 
