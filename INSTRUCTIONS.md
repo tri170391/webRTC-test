@@ -8,7 +8,7 @@
 ## How to answer this test
 
 Do **not** fork this repository on github. Instead please follow these steps:
-- clone this repository: `git clone https://github.com/StreamRoot/webRTC-test`
+- clone this repository: `git clone https://github.com/streamroot/webRTC-test`
 - create a new empty github repository (please do not use the  “Streamroot” brand name in the repository's name, as it's a registred trademark)
 - remove streamroot's remote on your local git `git remote remove origin`
 - add your repository to your local git `git remote add origin git@github.com:< … >`
