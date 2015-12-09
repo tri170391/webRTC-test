@@ -9,7 +9,7 @@
     "start":"(node app/server/signalingServer.js &) && ./node_modules/http-server/bin/http-server -p 8089"
   },
   "author": "StyMaar",
-  "license": "MIT",
+  "license": "GPL",
   "dependencies": {
     "ws": "^0.8.0"
   },
