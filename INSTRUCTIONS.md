@@ -3,7 +3,7 @@
 ## Requirements
 
 - Keep in mind that we'll focus on code efficiency and readability.
-- You shall provide some code that you consider production ready.
+- You shall provide some code that you consider **production ready**.
 - The single objective of this test is to evaluate how you handle the business logic, not the UI/UX. **Do not waste your time on front-end stuff**.
 
 ## How to answer this test
