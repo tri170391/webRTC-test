@@ -3,7 +3,7 @@
 ## Client first time connection:
 
 * Client connects -> ask to "join" server.
-* Server response by generating a unique user id =? "welcome" with ID response back to client.
+* Server response by generating a unique user id -> "welcome" with ID response back to client.
 * Client set ID -> "thanks" server for confirmation.
 * Server notify connected clients about the new clinet. -> Send "newclient" message.
 * Currently connected clients initiate WebRTC connect procedure on new client.
