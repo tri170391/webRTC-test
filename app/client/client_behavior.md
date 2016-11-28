@@ -23,3 +23,8 @@
 ## On sending message from user input:
 
 * Send a message through RTCPeerConnection of selected user on usertlist.
+* Append "Me: <message>" to messaging textbox.
+
+## On receiving message from user input:
+
+* Append "userid: <message>" to messaging textbox.
