@@ -9,7 +9,6 @@
   "author": "StyMaar",
   "license": "GPL",
   "dependencies": {
-    "http": "0.0.0",
     "socket.io": "^1.7.1"
   },
   "devDependencies": {}

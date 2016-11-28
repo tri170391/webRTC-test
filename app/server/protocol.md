@@ -17,7 +17,6 @@
 
 * On Server: Disconnect event from client socket. -> Server remove current client from user list.
 * Server send a "clientdisconnected" to the rest of the users.
-+ NOTE: Workaround for the problem of client not able to reliably detect if his peer has disconnected.
 
 ## User ask to open P2P connection to another user:
 
