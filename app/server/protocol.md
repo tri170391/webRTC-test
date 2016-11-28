@@ -16,7 +16,8 @@
 ## User disconnect:
 
 * On Server: Disconnect event from client socket. -> Server remove current client from user list.
-* On Client: WebRTC connection closed. -> Remove connection from list of current connections.
+* Server send a "clientdisconnected" to the rest of the users.
++ NOTE: Workaround for the problem of client not able to reliably detect if his peer has disconnected.
 
 ## User ask to open P2P connection to another user:
 
