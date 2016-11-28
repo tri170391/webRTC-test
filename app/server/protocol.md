@@ -10,12 +10,11 @@
 * Client send a "getusers" request.
 * Server responds with the "userlist" of currently connected user IDs.
 * Client initiate WebRTC connection procedure with each of the peers.
-* When WebRTC connection is established, client say "hello" to his peer with his ID.
 
 ## User disconnect:
 
 * On Server: Disconnect event from client socket. -> Server remove current client from user list.
-* Server send a "clientdisconnected" to the rest of the users.
+* Server send a "client_disconnected" to the rest of the users.
 
 ## User ask to open P2P connection to another user:
 

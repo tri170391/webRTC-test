@@ -9,6 +9,9 @@ var userlist = {};
 io.on('connection', function(socket) {
 	console.log("Client " + socket.id + " connected.");
 	
+	// Send to user his UserID
+	socket.emit("welcome", {id: socket.id});
+	
 	// Keep reference to this user's socket for later uses.
 	userlist[socket.id] = {conn:socket};
 	
