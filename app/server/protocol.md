@@ -2,9 +2,8 @@
 
 ## Client first time connection:
 
-* Client connects -> ask to "join" server.
+* Client connects.
 * Server response by generating a unique user id -> "welcome" with ID response back to client.
-* Client set ID -> "thanks" server for confirmation.
 
 ## Client request the list of connected users and connect to his peers:
 
