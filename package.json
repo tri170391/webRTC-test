@@ -4,21 +4,12 @@
   "description": "Streamroot's test for applicant developpers",
   "main": "index.js",
   "scripts": {
-    "test": "node_modules/mocha/bin/mocha",
-    "styleCheck": "./node_modules/jshint/bin/jshint app/ && ./node_modules/echint/bin/echint -v && echo 'Style check OK'",
-    "start":"(node app/server/signalingServer.js &) && ./node_modules/http-server/bin/http-server -p 8089"
+    "start":"node app/server/signalingServer.js"
   },
   "author": "StyMaar",
   "license": "GPL",
   "dependencies": {
-    "ws": "^0.8.0"
   },
   "devDependencies": {
-    "echint": "^1.5.0",
-    "http-server": "^0.8.5",
-    "jshint": "^2.8.0",
-    "mocha": "*",
-    "should": "^7.1.1",
-    "sinon": "^1.17.2"
   }
 }
