@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 	
-    <title>WehRTC Messaging Client</title>
+    <title>WebRTC Messaging Client</title>
     <!-- Bootstrap CSS -->
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
@@ -35,52 +35,22 @@
   <body>
 	<div class="container" style="min-height:600px">
 		<div class="page-header">
-			<h3 id="uid">Client ID - Alice</h3>
+			<!-- Display assigned user ID -->
+			<h3>Client ID - <span id="uid">Alice</span></h3>
 		</div>
 		<div class="row">
 			<div class="col-sm-3">
 				<div class="panel panel-default">
-					<!-- Userlist -->
-					<div class="list-group fixed-panel" id="user-list">
-						<a href="#" class="list-group-item active trunc">Bob</a>
-						<a href="#" class="list-group-item trunc">Charlie</a>
-						<a href="#" class="list-group-item trunc">Dallas</a>
-						<a href="#" class="list-group-item trunc">Eve</a>
-						<a href="#" class="list-group-item trunc">Mallory</a>
-					</div>
+					<!-- Connected user list -->
+					<div class="list-group fixed-panel" id="user-list"></div>
 				</div>
 			</div>
 			<div class="col-sm-9">
 				<div class="row">
 					<div class="panel panel-default">
-						<div class="panel-body fixed-panel">
+						<div class="panel-body fixed-panel" id="chat-panel">
 							<!-- Chat box elements -->
-							<div class="col-sm-11" id="chat-box">
-								<!-- Incoming message template -->
-								<div class="row help-inline chat-msg-row">
-									<span class="label label-success">
-										<span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>
-										<span>Bob</span>
-									</span>
-									<span class="chat-msg-content">Hello!</span>
-								</div>
-								<!-- Outgoing message template -->
-								<div class="row help-inline chat-msg-row">
-									<span class="label label-info">
-										<span class="glyphicon glyphicon-arrow-right" aria-hidden="true"></span>
-										<span>Bob</span>
-									</span>
-									<span class="chat-msg-content">Hi Bob!</span>
-								</div>
-								<!-- Error message template -->
-								<div class="row help-inline chat-msg-row">
-									<span class="label label-danger">
-										<span class="glyphicon glyphicon-alert" aria-hidden="true"></span>
-										<span>Error</span>
-									</span>
-									<span class="chat-msg-content">Something went very wrong...</span>
-								</div>
-							</div>
+							<div class="col-sm-11" id="chat-box"></div>
 						</div>
 					</div>
 				</div>
@@ -89,12 +59,12 @@
 						<span class="input-group-addon" id="msgbox-selected-user-addon">
 							<span class="glyphicon glyphicon-arrow-right" aria-hidden="true"></span>
 							<!-- Display selected target user -->
-							<span id="selected-user">Bob</span>
+							<span id="selected-user"></span>
 						</span>
 						<!-- Message textbox and send button -->
 						<input id="msgbox" type="text" class="form-control" placeholder="Message" aria-describedby="msgbox-selected-user-addon">
 						<span class="input-group-btn">
-							<button class="btn btn-success" type="button">Send</button>
+							<button class="btn btn-success" type="button" id="btn-send">Send</button>
 						</span>
 					</div>
 				</div>
@@ -107,5 +77,257 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
 	<!-- Bootstrap JS -->
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+	<!-- Socket.IO -->
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.6.0/socket.io.min.js"></script>
+	<!-- WebRTC adapter -->
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/adapterjs/0.14.0/adapter.min.js"></script>
+	
+	<!-- Our program logic -->
+	<script>
+		// Global variables
+		signaling_server_address = "http://localhost";
+		data_channel_id = "abcxyz";
+		signaling_server = undefined;
+		my_uid = undefined;
+		selected_user = undefined;
+		rtc_connections = {};
+		
+		// Append chat window with message
+		function appendChat(type, label, msg) {
+			var glyph = undefined, labeltype = undefined;
+			
+			// Set appropriate styles
+			switch (type) {
+				case "incoming":
+					glyph = "arrow-left";
+					labeltype = "success";
+					break;
+				case "outgoing":
+					glyph = "arrow-right";
+					labeltype = "info";
+					break;
+				case "error":
+					glyph = "alert";
+					labeltype = "danger";
+					break;
+				case "welcome":
+					glyph = "alert";
+					labeltype = "warning";
+					break;
+				default:
+					glyph = "asterisk";
+					labeltype = "default";
+					break;
+			}
+			
+			// Append to chat box
+			var html_txt = `<div class="row help-inline chat-msg-row">
+							<span class="label label-${labeltype}">
+								<span class="glyphicon glyphicon-${glyph}" aria-hidden="true"></span>
+								<span>${label}</span>
+							</span>
+							<span class="chat-msg-content">${msg}</span>
+						</div>`;
+			$("#chat-box").append(html_txt);
+			$("#chat-panel").scrollTop($("#chat-panel")[0].scrollHeight);
+		}
+		
+		function updateUserList() {
+			// Get active peer IDs
+			user_list = Object.keys(rtc_connections);
+			
+			// Populate the peer list
+			$("#user-list").empty();
+			$.each(user_list, function(user) {
+				var html_txt = `<a href="#" class="list-group-item trunc" id="userlist-${user_list[user]}" onclick="updateSelectedUser('${user_list[user]}')">${user_list[user]}</a>`;
+				$("#user-list").append(html_txt);
+			});
+			
+			// Selcted user may be disconnected, update UI accordingly
+			if (rtc_connections[selected_user]) {
+				$(`#userlist-${selected_user}`).addClass("active");
+			}
+			else {
+				selected_user = undefined;
+				$("#selected-user").text("");
+			}
+		}
+		
+		function updateSelectedUser(user)
+		{
+			// Update UI elements
+			$("#user-list").children().removeClass("active");
+			$(`#userlist-${user}`).addClass("active");
+			selected_user = user;
+			$("#selected-user").text(selected_user);
+		}
+		
+		
+		function setupRTCConnection(peer_id) {
+			rtc_connections[peer_id] = new Object();
+			 
+			// Common ICE configuration
+			var rtc_conn_config = { 
+				"iceServers": [{ "url": "stun:stun.1.google.com:19302" }] 
+			};
+			
+			// Create RTCPeerConnection for this peer
+			rtc_connections[peer_id].rtc_conn = new RTCPeerConnection(rtc_conn_config);
+				
+			// Setup ICE Handling
+			rtc_connections[peer_id].rtc_conn.onicecandidate = function (event) {
+				if (event.candidate) {
+					signaling_server.emit("rtc_ice_candidate", {to: peer_id, ice: event.candidate});
+				}
+			};
+			
+			updateUserList();
+		}
+		
+		function setUpDataChannelEvents(peer_id) {
+			rtc_connections[peer_id].data_channel.onopen = function () {
+				appendChat("info", "RTC", `Opened RTC data channel to ${peer_id}`);
+			};
+			rtc_connections[peer_id].data_channel.onmessage = function (msg) {
+				appendChat("incoming", peer_id, msg.data);
+			};
+			rtc_connections[peer_id].data_channel.onerror = function (msg) {
+				appendChat("error", "DataChannel", msg);
+			};
+		}
+		
+		// Call another user
+		function offerRTCConnection(peer_id) {
+			setupRTCConnection(peer_id);
+			
+			// Create data channel
+			rtc_connections[peer_id].data_channel = rtc_connections[peer_id].rtc_conn.createDataChannel(data_channel_id);
+			
+			setUpDataChannelEvents(peer_id);
+			
+			// Create an offer
+			rtc_connections[peer_id].rtc_conn.createOffer(function (offer) {
+				signaling_server.emit("rtc_offer", {to: peer_id, sdp: offer});
+				rtc_connections[peer_id].rtc_conn.setLocalDescription(offer);
+			}, function error(msg) {
+				appendChat("error", "RTC", msg);
+			});
+			 
+			
+		}
+		
+		// Answer an offer from another user
+		function answerRTCConnection(peer_id, peer_sdp) {
+			setupRTCConnection(peer_id);
+			
+			rtc_connections[peer_id].rtc_conn.ondatachannel = function (evt) {
+				rtc_connections[peer_id].data_channel = evt.channel;
+				setUpDataChannelEvents(peer_id);
+			};
+			 
+			// Set our remote description
+			rtc_connections[peer_id].rtc_conn.setRemoteDescription(new RTCSessionDescription(peer_sdp));
+			 
+			// Create our answer
+			rtc_connections[peer_id].rtc_conn.createAnswer(function (answer) {
+				rtc_connections[peer_id].rtc_conn.setLocalDescription(answer);
+				signaling_server.emit("rtc_answer", {to: peer_id, sdp: answer});
+			}, function error(msg) {
+				appendChat("error", "RTC", msg)
+			});
+		}
+		
+		// Send P2P message through data channel
+		function sendP2PMessage(peer_id, msg) {
+			if (msg.length < 1) {
+				return;
+			}
+			if (rtc_connections[peer_id].data_channel.readyState != "open") {
+				appendChat("error", "RTC", `Connection to ${peer_id} not ready.`);
+			}
+			else {
+				appendChat("outgoing", peer_id, msg);
+				rtc_connections[peer_id].data_channel.send(msg);
+			}
+		}
+		
+		// Utility function to bind to send messagebox and button
+		function invokeSend() {
+			if (selected_user) {
+				// Send typed message
+				sendP2PMessage(selected_user, $("#msgbox").val());
+				
+				// Clear msgbox
+				$("#msgbox").val("");
+			}
+			else {
+				appendChat("error", "user", "Please select a destination client.");
+			}
+			
+		}
+		
+		// On page ready
+		$(document).ready(function() {
+			signaling_server = io(signaling_server_address);
+			
+			// Ask server for user list
+			signaling_server.emit("ask_user_list");
+			
+			// Server welcomes us with our User ID
+			signaling_server.on("welcome", function(msg) {
+				my_uid = msg.id;
+				$("#uid").text(my_uid);
+				appendChat("welcome", "coordinator", `Welcome to our P2P chat system, your User ID is ${my_uid}`);
+			});
+			
+			// Server send us current user list
+			signaling_server.on("answer_user_list", function(msg) {
+				peer_ids = msg.list;
+				$.each(peer_ids, function(peer_id) {
+					// Offer connection to everyone (and not myself)
+					if (peer_ids[peer_id] !== my_uid) {
+						offerRTCConnection(peer_ids[peer_id]);
+					}
+				});
+			});
+			
+			// Something is wrong on the signaling server
+			signaling_server.on("protocol_error", function(msg) {
+				appendChat("error", "coordinator", msg.msg);
+			});
+			
+			// Someone calling us
+			signaling_server.on("rtc_offer", function(msg) {
+				answerRTCConnection(msg.sender, msg.sdp);
+			});
+			
+			// Someone answering our offer
+			signaling_server.on("rtc_answer", function(msg) {
+				rtc_connections[msg.sender].rtc_conn.setRemoteDescription(new RTCSessionDescription(msg.sdp));
+			});
+			
+			// Received ICE candidates from peer.
+			signaling_server.on("rtc_ice_candidate", function(msg) {
+				rtc_connections[msg.sender].rtc_conn.addIceCandidate(new RTCIceCandidate(msg.ice));
+			});
+			
+			// A user is disconnected
+			signaling_server.on("client_disconnected", function(msg) {
+				rtc_connections[msg.who].data_channel.close();
+				rtc_connections[msg.who].rtc_conn.close();
+				delete rtc_connections[msg.who];
+				updateUserList();
+			});
+			
+			// Bind submit events
+			$("#msgbox").keypress(function(event){
+				var keycode = (event.keyCode ? event.keyCode : event.which);
+				if(keycode == '13'){
+					invokeSend();
+				}
+			});
+			$("#btn-send").click(invokeSend);
+		});
+	</script>
   </body>
 </html>

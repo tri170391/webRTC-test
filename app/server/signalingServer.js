@@ -45,9 +45,9 @@ io.on('connection', function(socket) {
 	
 	// Send an ice_candidate to another user
 	socket.on("rtc_ice_candidate", function(ice_candidate) {
-		console.log("Client " + socket.id + " answers " + ice_candidate.to + ".");
+		console.log("Client " + socket.id + " sends ICE candidates to " + ice_candidate.to + ".");
 		if (ice_candidate.to in userlist) {
-			userlist[ice_candidate.to].conn.emit('rtc_ice_candidate', {sender: socket.id, sdp: ice_candidate.ice});
+			userlist[ice_candidate.to].conn.emit('rtc_ice_candidate', {sender: socket.id, ice: ice_candidate.ice});
 		}
 		else {
 			socket.emit('protocol_error', {msg: "UserID not connected."})
