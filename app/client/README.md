@@ -28,3 +28,7 @@
 ## On receiving message from user input:
 
 * Append "userid: <message>" to messaging textbox.
+
+# P2P Client layout
+
+![Annotated client layout](https://raw.githubusercontent.com/tri170391/webRTC-test/master/app/client/client_screenshot.png)

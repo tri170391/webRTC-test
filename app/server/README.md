@@ -22,4 +22,4 @@
 * Server relay "offer" to appropriate user or "error" back to requesting user if userID is not connected.
 * Target user send "answer" WebRTC response to server with requesting userID.
 * Server relay "answer" to request user.
-* Server relay apprproiate "icecandidate" to each user.
+* Server relay appropriate "icecandidate" to each user.
