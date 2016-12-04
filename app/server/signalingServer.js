@@ -1,5 +1,5 @@
 var PORT = process.env.PORT || 80;
-var server = express()
+var server = require('express')
   .use((req, res) => res.sendFile(INDEX) )
   .listen(PORT, () => console.log(`Listening on ${PORT}`));
 var io = require('socket.io')(server);
