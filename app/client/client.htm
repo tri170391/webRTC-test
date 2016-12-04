@@ -168,7 +168,7 @@
 			 
 			// Common ICE configuration
 			var rtc_conn_config = { 
-				"iceServers": [{ "url": "stun:stun.1.google.com:19302" }] 
+				"iceServers": [{ "url": "stun:stun.l.google.com:19302" }] 
 			};
 			
 			// Create RTCPeerConnection for this peer
@@ -315,10 +315,14 @@
 			
 			// A user is disconnected
 			signaling_server.on("client_disconnected", function(msg) {
-				rtc_connections[msg.who].data_channel.close();
-				rtc_connections[msg.who].rtc_conn.close();
-				delete rtc_connections[msg.who];
-				updateUserList();
+				if (rtc_connections[msg.who]) {
+					rtc_connections[msg.who].rtc_conn.close();
+					if (rtc_connections[msg.who].data_channel){
+						rtc_connections[msg.who].data_channel.close();
+					}
+					delete rtc_connections[msg.who];
+					updateUserList();
+				}
 			});
 			
 			// Bind submit events
