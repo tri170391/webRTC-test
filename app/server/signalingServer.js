@@ -1,6 +1,6 @@
 var PORT = process.env.PORT || 80;
 var io = require('socket.io')(PORT);
-io.set("origins", "*:*");
+io.set("origins", "*");
 
 console.log('Started signaling server on port ' + PORT);
 
