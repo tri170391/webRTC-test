@@ -85,7 +85,7 @@
 	<!-- Our program logic -->
 	<script>
 		// Global variables
-		signaling_server_address = "http://localhost";
+		signaling_server_address = "http://tri170391-webrtc-chat.herokuapp.com";
 		data_channel_id = "abcxyz";
 		signaling_server = undefined;
 		my_uid = undefined;
@@ -178,6 +178,7 @@
 			rtc_connections[peer_id].rtc_conn.onicecandidate = function (event) {
 				if (event.candidate) {
 					signaling_server.emit("rtc_ice_candidate", {to: peer_id, ice: event.candidate});
+					console.log(`Sent ICE candidates ${JSON.stringify(event.candidate)} from ${peer_id}.`);
 				}
 			};
 			
@@ -308,6 +309,7 @@
 			
 			// Received ICE candidates from peer.
 			signaling_server.on("rtc_ice_candidate", function(msg) {
+				console.log(`Received ICE candidates ${JSON.stringify(msg.ice)} from ${msg.sender}.`);
 				rtc_connections[msg.sender].rtc_conn.addIceCandidate(new RTCIceCandidate(msg.ice));
 			});
 			
