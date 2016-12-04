@@ -3,6 +3,7 @@ var server = require('express')()
   .use((req, res) => res.sendFile(INDEX) )
   .listen(PORT, () => console.log(`Listening on ${PORT}`));
 var io = require('socket.io')(server);
+io.set("transports", ["websocket"]);
 
 var userlist = {};
 
