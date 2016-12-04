@@ -1,5 +1,5 @@
-var PORT = 80;
-var io = require('socket.io')(process.env.PORT || PORT);
+var PORT = process.env.PORT || 80;
+var io = require('socket.io')(PORT);
 
 console.log('Started signaling server on port ' + PORT);
 
